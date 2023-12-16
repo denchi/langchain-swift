@@ -40,6 +40,8 @@ public struct StrOutputParser: BaseOutputParser {
     public func parse(text: String) -> Parsed {
         Parsed.str(text)
     }
-    
-    
+}
+
+public protocol FormatInstructions {
+    func get_format_instructions() -> String;
 }

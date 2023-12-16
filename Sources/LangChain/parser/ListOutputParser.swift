@@ -6,10 +6,13 @@
 //
 
 import Foundation
-public struct ListOutputParser: BaseOutputParser {
+public struct ListOutputParser: BaseOutputParser, FormatInstructions {
+    public init() {}
     public func parse(text: String) -> Parsed {
         Parsed.list(text.components(separatedBy: ","))
     }
     
-    
+    public func get_format_instructions() -> String {
+        return "Your response should be a list of comma separated values, eg: `foo, bar, baz`"
+    }
 }

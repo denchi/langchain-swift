@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct EnumOutputParser<T> : BaseOutputParser where T: RawRepresentable ,T: CaseIterable, T.RawValue == String  {
+public struct EnumOutputParser<T> : FormatInstructions, BaseOutputParser where T: RawRepresentable ,T: CaseIterable, T.RawValue == String  {
     public init(enumType: T.Type) {
         self.enumType = enumType
     }
@@ -28,5 +28,4 @@ public struct EnumOutputParser<T> : BaseOutputParser where T: RawRepresentable ,
         }
         return String(format: "Select one of the following options: {%@}, The output is simply the value %@", all.joined(separator: ", "), all.joined(separator: " or "))
     }
-    
 }

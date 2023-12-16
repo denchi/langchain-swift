@@ -14,17 +14,19 @@ public class OpenAI: LLM {
     
     let temperature: Double
     let model: ModelID
+    let apiKey: String?
     
-    public init(temperature: Double = 0.0, model: ModelID = Model.GPT3.gpt3_5Turbo16K, callbacks: [BaseCallbackHandler] = [], cache: BaseCache? = nil) {
+    public init(temperature: Double = 0.0, model: ModelID = Model.GPT3.gpt3_5Turbo16K, callbacks: [BaseCallbackHandler] = [], cache: BaseCache? = nil, apiKey: String? = nil) {
         self.temperature = temperature
         self.model = model
+        self.apiKey = apiKey
         super.init(callbacks: callbacks, cache: cache)
     }
     
     public override func _send(text: String, stops: [String] = []) async throws -> LLMResult {
         let env = Env.loadEnv()
         
-        if let apiKey = env["OPENAI_API_KEY"] {
+        if let apiKey = self.apiKey ?? env["OPENAI_API_KEY"] {
             let baseUrl = env["OPENAI_API_BASE"] ?? "api.openai.com"
             let eventLoopGroup = ThreadManager.thread
 
@@ -37,8 +39,14 @@ public class OpenAI: LLM {
 
             let openAIClient = OpenAIKit.Client(httpClient: httpClient, configuration: configuration)
             
-            let completion = try await openAIClient.chats.create(model: model, messages: [.user(content: text)], temperature: temperature, stops: stops)
-            return LLMResult(llm_output: completion.choices.first!.message.content)
+            do{
+                let completion = try await openAIClient.chats.create(model: model, messages: [.user(content: text)], temperature: temperature, stops: stops)
+                return LLMResult(llm_output: completion.choices.first!.message.content)
+            }
+            catch {
+                print("An error occurred: \(error)")
+                return LLMResult(llm_output: "Error");
+           }
         } else {
             print("Please set openai api key.")
             return LLMResult(llm_output: "Please set openai api key.")
